@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id          Int             @id @default(autoincrement())
+  username    String
+  email       String
+  password    String
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+  user_id_one conversations[] @relation("id_for_user_one")
+  user_id_two conversations[] @relation("id_for_user_two")
+
+  connected connected[]
+  messages  messages[]
+
+  @@unique([email])
+}
+
+model connected {
+  id         Int      @id @default(autoincrement())
+  user       users    @relation(fields: [user_id], references: [id])
+  user_id    Int
+  socket     String?
+  peer       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model conversations {
+  id          Int        @id @default(autoincrement())
+  user_one    users      @relation("id_for_user_one", fields: [user_id_one], references: [id])
+  user_id_one Int
+  user_two    users      @relation("id_for_user_two", fields: [user_id_two], references: [id])
+  user_id_two Int
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  messages    messages[]
+
+  @@unique(fields: [user_id_one, user_id_two], name: "user")
+}
+
+model messages {
+  id              Int           @id @default(autoincrement())
+  conversation    conversations @relation(fields: [conversation_id], references: [id])
+  conversation_id Int
+  user_id         Int
+  user            users         @relation(fields: [user_id], references: [id])
+  message         String?       @db.LongText
+  file            String?       @db.LongText
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+}

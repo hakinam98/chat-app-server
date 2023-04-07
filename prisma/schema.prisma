@@ -15,8 +15,10 @@ model users {
   username    String
   email       String
   password    String
+  status      status          @default(offline)
   created_at  DateTime        @default(now())
   updated_at  DateTime        @updatedAt
+  offline_at  DateTime?
   user_id_one conversations[] @relation("id_for_user_one")
   user_id_two conversations[] @relation("id_for_user_two")
 
@@ -24,6 +26,11 @@ model users {
   messages  messages[]
 
   @@unique([email])
+}
+
+enum status {
+  online
+  offline
 }
 
 model connected {

@@ -32,22 +32,22 @@ export class UsersController {
     return new UserEntity(await this.usersService.create(createUserDto));
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity, isArray: true })
-  async findAll() {
-    const users = await this.usersService.findAll();
-    return users.map((user) => new UserEntity(user));
-  }
-
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return new UserEntity(await this.usersService.findOne(id));
+  @ApiOkResponse({ type: UserEntity, isArray: true })
+  async findAll(@Param('id', ParseIntPipe) id: number) {
+    const users = await this.usersService.findAll(id);
+    return users.map((user) => new UserEntity(user));
   }
+
+  // @Get(':id')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @ApiOkResponse({ type: UserEntity })
+  // async findOne(@Param('id', ParseIntPipe) id: number) {
+  //   return new UserEntity(await this.usersService.findOne(id));
+  // }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)

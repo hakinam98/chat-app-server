@@ -20,6 +20,12 @@ export class UserEntity implements users {
   password: string;
 
   @ApiProperty()
+  status: any;
+
+  @ApiProperty()
+  offline_at: Date;
+
+  @ApiProperty()
   created_at: Date;
 
   @ApiProperty()

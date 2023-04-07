@@ -1,5 +1,6 @@
 import {
   Injectable,
+  NotAcceptableException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -7,6 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
 import * as bcrypt from 'bcrypt';
+import { SignUpDto } from './dto/signUp.dto';
+
+export const roundsOfHashing = 10;
 
 @Injectable()
 export class AuthService {
@@ -18,7 +22,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException(`No user found for email: ${email}`);
+      throw new UnauthorizedException(`No user found for email: ${email}`);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -30,6 +34,31 @@ export class AuthService {
     return {
       accessToken: this.jwt.sign({ userId: user.id }),
       user: user,
+    };
+  }
+
+  async signUp(signUpDto: SignUpDto): Promise<AuthEntity> {
+    const user = await this.prisma.users.findUnique({
+      where: { email: signUpDto.email },
+    });
+
+    if (user) {
+      throw new NotAcceptableException('email existed!');
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      signUpDto.password,
+      roundsOfHashing,
+    );
+
+    signUpDto.password = hashedPassword;
+
+    const newUser = await this.prisma.users.create({
+      data: signUpDto,
+    });
+    return {
+      accessToken: this.jwt.sign({ userId: newUser.id }),
+      user: newUser,
     };
   }
 }

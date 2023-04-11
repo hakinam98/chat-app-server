@@ -41,6 +41,8 @@ model connected {
   peer       String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@unique([user_id])
 }
 
 model conversations {

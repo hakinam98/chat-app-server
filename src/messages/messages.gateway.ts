@@ -13,6 +13,8 @@ import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConnectedDto } from './dto/connected.dto';
 import { MessageDto } from './dto/message.dto';
+import { PeerDto } from './dto/peer.dto';
+import { CallToDto } from './dto/callto.dto';
 
 @WebSocketGateway({
   origin: '*:*',
@@ -107,12 +109,42 @@ export class MessagesGateway
       });
     }
   }
-  // @SubscribeMessage('send_message')
-  // async createReply(@MessageBody() messageDto: MessageDto) {
-  //   const conversation = await this.prisma.conversations.findUnique({
-  //     where: {
-  //       id: messageDto.conversation_id,
-  //     },
-  //   });
-  // }
+
+  @SubscribeMessage('peer-id')
+  async createPeerId(@MessageBody() peerDto: PeerDto) {
+    await this.prisma.connected.update({
+      where: {
+        user_id: peerDto.user_id,
+      },
+      data: {
+        peer: peerDto.peer_id,
+      },
+    });
+  }
+
+  @SubscribeMessage('call-to')
+  async getSocketId(@MessageBody() callToDto: CallToDto) {
+    const userConnected = await this.prisma.connected.findUnique({
+      where: {
+        user_id: callToDto.to,
+      },
+    });
+    if (userConnected) {
+      await this.server.to(userConnected.socket).emit('calling', {
+        message: `You have a call from user id ${callToDto.from}`,
+      });
+    }
+  }
+
+  @SubscribeMessage('get-peer-id')
+  async getPeerId(@MessageBody() id: number) {
+    const userConnected = await this.prisma.connected.findUnique({
+      where: {
+        user_id: id,
+      },
+    });
+    if (userConnected) {
+      this.server.emit('rec-peer-id', userConnected.peer);
+    }
+  }
 }

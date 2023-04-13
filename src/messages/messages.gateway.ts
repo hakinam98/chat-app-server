@@ -12,7 +12,6 @@ import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConnectedDto } from './dto/connected.dto';
-import { MessageDto } from './dto/message.dto';
 import { PeerDto } from './dto/peer.dto';
 import { CallToDto } from './dto/callto.dto';
 

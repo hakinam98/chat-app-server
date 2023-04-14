@@ -6,12 +6,11 @@ import { ExpressPeerServer } from 'peer';
 export class PeerModule {
   constructor() {
     const app = express();
-    const server = app.listen(9000);
+    const server = app.listen(process.env.PORT || 9000);
 
     const peerServer = ExpressPeerServer(server, {
-      path: '/myapp',
+      path: '/peer',
     });
-
     app.use(peerServer);
   }
 }

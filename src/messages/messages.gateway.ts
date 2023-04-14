@@ -39,7 +39,7 @@ export class MessagesGateway
         user_id: userId,
         socket: client.id,
       };
-      const isConnected = await this.prisma.connected.findFirst({
+      const isConnected = await this.prisma.connected.findUnique({
         where: {
           user_id: connectedUser.user_id,
         },
@@ -129,8 +129,8 @@ export class MessagesGateway
       },
     });
     if (userConnected) {
-      await this.server.to(userConnected.socket).emit('calling', {
-        message: `You have a call from user id ${callToDto.from}`,
+      this.server.to(userConnected.socket).emit('calling', {
+        message: `Calling`,
       });
     }
   }
@@ -142,6 +142,7 @@ export class MessagesGateway
         user_id: id,
       },
     });
+    console.log(userConnected);
     if (userConnected) {
       this.server.emit('rec-peer-id', userConnected.peer);
     }

@@ -37,6 +37,17 @@ export class UsersService {
     return this.prisma.users.findUnique({ where: { id } });
   }
 
+  async findPeerId(id: number) {
+    const userConnected = await this.prisma.connected.findUnique({
+      where: { user_id: id },
+    });
+    console.log(userConnected);
+
+    if (userConnected) {
+      return userConnected.peer;
+    }
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(

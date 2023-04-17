@@ -41,13 +41,13 @@ export class UsersController {
     return users.map((user) => new UserEntity(user));
   }
 
-  // @Get(':id')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @Get(':id/peerid')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   // @ApiOkResponse({ type: UserEntity })
-  // async findOne(@Param('id', ParseIntPipe) id: number) {
-  //   return new UserEntity(await this.usersService.findOne(id));
-  // }
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findPeerId(id);
+  }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
